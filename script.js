@@ -12,16 +12,16 @@ class OddsDisplay {
         this.oddsData = null;
         this.sportsbooks = [];
         
-        // Define allowed sportsbooks - only these will be displayed
+        // Define allowed sportsbooks based on actual uploaded logo files
         this.allowedSportsbooks = [
-            'ESPN Bet',
-            'Fanatics', 
-            'Caesars',
-            'Bet365',
-            'DraftKings',
-            'Unabated',
-            'FanDuel',
-            'BetMGM'
+            'ESPN Bet',      // ESPN Bet.jpg
+            'Fanatics',      // Fanatics.png
+            'Caesars',       // Caesers.png (misspelled filename)
+            'Bet365',        // Bet365.jpg
+            'DraftKings',    // Draftkings.jpeg (lowercase k)
+            'Unabated',      // Unabated.jpg
+            'FanDuel',       // FanDuel.jpg
+            'BetMGM'         // BetMGM.png
         ];
         
         this.init();
@@ -245,13 +245,13 @@ class OddsDisplay {
     }
 
     getLocalLogoUrl(sportsbook) {
-        // Map of sportsbook names to their actual uploaded file names
+        // Map of sportsbook names to their exact uploaded file names
         const fileMap = {
-            'ESPN Bet': 'ESPN%20Bet.jpg',  // Space needs URL encoding
+            'ESPN Bet': 'ESPN Bet.jpg',        // Note: space in filename
             'Fanatics': 'Fanatics.png', 
-            'Caesars': 'Caesers.png',      // Note: actual filename is misspelled as "Caesers"
+            'Caesars': 'Caesers.png',          // Note: misspelled as "Caesers" in actual file
             'Bet365': 'Bet365.jpg',
-            'DraftKings': 'Draftkings.jpeg', // Note: lowercase 'k' in actual filename
+            'DraftKings': 'Draftkings.jpeg',   // Note: lowercase 'k' in actual file
             'Unabated': 'Unabated.jpg',
             'FanDuel': 'FanDuel.jpg',
             'BetMGM': 'BetMGM.png'

@@ -125,10 +125,24 @@ def serve_test_data():
 def serve_logo(sportsbook):
     """Serve sportsbook logos with fallback to generated SVG."""
     try:
+        # URL decode the sportsbook name to handle spaces and special characters
+        import urllib.parse
+        decoded_sportsbook = urllib.parse.unquote(sportsbook)
+        
         # First try to serve the file as requested (for direct file name requests)
-        direct_path = f'logos/{sportsbook}'
+        direct_path = f'logos/{decoded_sportsbook}'
         if os.path.exists(direct_path):
             # Determine MIME type based on file extension
+            if decoded_sportsbook.lower().endswith('.png'):
+                return send_from_directory('logos', decoded_sportsbook, mimetype='image/png')
+            elif decoded_sportsbook.lower().endswith('.jpg') or decoded_sportsbook.lower().endswith('.jpeg'):
+                return send_from_directory('logos', decoded_sportsbook, mimetype='image/jpeg')
+            else:
+                return send_from_directory('logos', decoded_sportsbook)
+        
+        # Also try the original encoded version
+        original_path = f'logos/{sportsbook}'
+        if os.path.exists(original_path):
             if sportsbook.lower().endswith('.png'):
                 return send_from_directory('logos', sportsbook, mimetype='image/png')
             elif sportsbook.lower().endswith('.jpg') or sportsbook.lower().endswith('.jpeg'):
@@ -139,10 +153,10 @@ def serve_logo(sportsbook):
         # Try different file extensions for the sportsbook name
         extensions = ['.png', '.jpg', '.jpeg', '.svg']
         for ext in extensions:
-            logo_path = f'logos/{sportsbook.lower()}{ext}'
+            logo_path = f'logos/{decoded_sportsbook.lower()}{ext}'
             if os.path.exists(logo_path):
                 mimetype = 'image/png' if ext == '.png' else 'image/jpeg' if ext in ['.jpg', '.jpeg'] else 'image/svg+xml'
-                return send_from_directory('logos', f'{sportsbook.lower()}{ext}', mimetype=mimetype)
+                return send_from_directory('logos', f'{decoded_sportsbook.lower()}{ext}', mimetype=mimetype)
         
         # Generate SVG fallback
         from flask import Response
