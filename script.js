@@ -262,8 +262,8 @@ class OddsDisplay {
             return `http://localhost:5000/logos/${encodeURIComponent(fileMap[sportsbook])}`;
         }
         
-        // Fallback to the original logic
-        return `http://localhost:5000/logos/${encodeURIComponent(sportsbook)}`;
+        // Return null if no mapping found (will trigger fallback)
+        return null;
     }
 
     createFallbackLogo(sportsbook) {
@@ -323,7 +323,7 @@ class OddsDisplay {
             const tryNextLogo = () => {
                 img.classList.remove('loading', 'fallback');
                 
-                if (currentTier === 0) {
+                if (currentTier === 0 && localLogoUrl) {
                     // Tier 1: Try local server logo first
                     img.className = 'sportsbook-logo loading';
                     img.src = localLogoUrl;
@@ -346,7 +346,11 @@ class OddsDisplay {
             };
             
             img.onerror = () => {
-                if (currentTier < 2) {
+                if (currentTier === 0 && !localLogoUrl && externalLogoUrl) {
+                    // Skip to external if no local logo exists
+                    currentTier = 1;
+                    tryNextLogo();
+                } else if (currentTier < 2) {
                     tryNextLogo();
                 } else {
                     img.classList.remove('loading');
