@@ -116,7 +116,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 10;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 .header-section {
@@ -151,7 +151,7 @@ body {
 .sportsbook-headers {
     display: flex;
     flex: 1;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 .sportsbook-header {
@@ -357,7 +357,7 @@ body {
 .sportsbook-odds {
     display: flex;
     flex: 1;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 .odds-column {
@@ -408,11 +408,6 @@ body {
 @media (max-width: 1200px) {
     .container {
         padding: 16px;
-    }
-    
-    .sportsbook-headers,
-    .sportsbook-odds {
-        overflow-x: auto;
     }
 }
 

@@ -62,26 +62,8 @@ class OddsDisplay {
     }
 
     setupScrollSync() {
-        // Synchronize horizontal scrolling between header and content
-        const tableHeader = document.querySelector('.table-header');
-        const gamesTable = document.getElementById('games-table');
-        
-        let isScrollingHeader = false;
-        let isScrollingContent = false;
-        
-        tableHeader.addEventListener('scroll', () => {
-            if (isScrollingContent) return;
-            isScrollingHeader = true;
-            gamesTable.scrollLeft = tableHeader.scrollLeft;
-            setTimeout(() => { isScrollingHeader = false; }, 10);
-        });
-        
-        gamesTable.addEventListener('scroll', () => {
-            if (isScrollingHeader) return;
-            isScrollingContent = true;
-            tableHeader.scrollLeft = gamesTable.scrollLeft;
-            setTimeout(() => { isScrollingContent = false; }, 10);
-        });
+        // No scroll sync needed - only the games table scrolls horizontally
+        // Headers and games data stay aligned as they're part of the same layout structure
     }
 
     updateDateDisplay() {
