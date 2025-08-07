@@ -12,6 +12,18 @@ class OddsDisplay {
         this.oddsData = null;
         this.sportsbooks = [];
         
+        // Define allowed sportsbooks - only these will be displayed
+        this.allowedSportsbooks = [
+            'ESPN Bet',
+            'Fanatics', 
+            'Caesars',
+            'Bet365',
+            'DraftKings',
+            'Unabated',
+            'FanDuel',
+            'BetMGM'
+        ];
+        
         this.init();
     }
 
@@ -113,17 +125,79 @@ class OddsDisplay {
             });
         }
         
-        this.sportsbooks = Array.from(sportsbooksSet);
+        // Filter to only include allowed sportsbooks
+        const allSportsbooks = Array.from(sportsbooksSet);
+        this.sportsbooks = this.filterAllowedSportsbooks(allSportsbooks);
         this.renderSportsbookHeaders();
     }
 
+    // Helper method to normalize sportsbook names for comparison
+    normalizeSportsbookName(name) {
+        return name.toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[^a-z0-9]/g, '');
+    }
+
+    // Filter sportsbooks to only include allowed ones
+    filterAllowedSportsbooks(allSportsbooks) {
+        const filtered = [];
+        
+        // Create normalized versions of allowed sportsbooks for comparison
+        const normalizedAllowed = this.allowedSportsbooks.map(sb => ({
+            original: sb,
+            normalized: this.normalizeSportsbookName(sb)
+        }));
+        
+        allSportsbooks.forEach(sportsbook => {
+            const normalizedSportsbook = this.normalizeSportsbookName(sportsbook);
+            
+            // Check if this sportsbook matches any of our allowed ones
+            const match = normalizedAllowed.find(allowed => 
+                allowed.normalized === normalizedSportsbook ||
+                normalizedSportsbook.includes(allowed.normalized) ||
+                allowed.normalized.includes(normalizedSportsbook)
+            );
+            
+            if (match) {
+                filtered.push(sportsbook);
+            }
+        });
+        
+        // If no matches found from data, return the allowed sportsbooks 
+        // (they may not have data but we still want to show headers)
+        if (filtered.length === 0) {
+            return this.allowedSportsbooks.slice(); // Return copy of allowed sportsbooks
+        }
+        
+        return filtered;
+    }
+
+    // Check if a sportsbook is in our allowed list
+    isAllowedSportsbook(sportsbook) {
+        const normalizedSportsbook = this.normalizeSportsbookName(sportsbook);
+        
+        return this.allowedSportsbooks.some(allowed => {
+            const normalizedAllowed = this.normalizeSportsbookName(allowed);
+            return normalizedAllowed === normalizedSportsbook ||
+                   normalizedSportsbook.includes(normalizedAllowed) ||
+                   normalizedAllowed.includes(normalizedSportsbook);
+        });
+    }
+
     getSportsbookLogoUrl(sportsbook) {
-        // Comprehensive sportsbook logo mapping
+        // Comprehensive sportsbook logo mapping - prioritizing allowed sportsbooks
         const logoMap = {
-            'FanDuel': 'https://logoeps.com/wp-content/uploads/2021/03/fanduel-vector-logo.png',
-            'DraftKings': 'https://logoeps.com/wp-content/uploads/2021/03/draftkings-vector-logo.png',
-            'BetMGM': 'https://logos-world.net/wp-content/uploads/2021/08/BetMGM-Logo.png',
+            // Allowed sportsbooks
+            'ESPN Bet': 'https://logos-world.net/wp-content/uploads/2023/11/ESPN-BET-Logo.png',
+            'Fanatics': 'https://logos-world.net/wp-content/uploads/2023/08/Fanatics-Sportsbook-Logo.png',
             'Caesars': 'https://logos-world.net/wp-content/uploads/2021/08/Caesars-Sportsbook-Logo.png',
+            'Bet365': 'https://logos-world.net/wp-content/uploads/2020/06/Bet365-Logo.png',
+            'DraftKings': 'https://logoeps.com/wp-content/uploads/2021/03/draftkings-vector-logo.png',
+            'Unabated': 'https://unabated.com/favicon.ico',
+            'FanDuel': 'https://logoeps.com/wp-content/uploads/2021/03/fanduel-vector-logo.png',
+            'BetMGM': 'https://logos-world.net/wp-content/uploads/2021/08/BetMGM-Logo.png',
+            
+            // Other sportsbooks (for backward compatibility)
             'BetRivers': 'https://www.gamblingsites.com/app/uploads/2019/10/betrivers-logo-1.png',
             'PointsBet': 'https://logos-world.net/wp-content/uploads/2021/08/PointsBet-Logo.png',
             'WynnBET': 'https://logos-world.net/wp-content/uploads/2021/08/WynnBET-Logo.png',
@@ -167,10 +241,17 @@ class OddsDisplay {
         // Create a styled SVG fallback logo
         const initial = sportsbook.charAt(0).toUpperCase();
         const colors = {
-            'FanDuel': '#1e3a8a',
-            'DraftKings': '#f59e0b', 
-            'BetMGM': '#059669',
+            // Allowed sportsbooks colors
+            'ESPN Bet': '#d50000',
+            'Fanatics': '#0066cc', 
             'Caesars': '#dc2626',
+            'Bet365': '#ffb400',
+            'DraftKings': '#f59e0b',
+            'Unabated': '#4a90e2',
+            'FanDuel': '#1e3a8a',
+            'BetMGM': '#059669',
+            
+            // Other sportsbooks
             'BetRivers': '#0891b2',
             'PointsBet': '#7c3aed',
             'WynnBET': '#be123c',
@@ -261,10 +342,17 @@ class OddsDisplay {
     formatSportsbookName(name) {
         // Handle common sportsbook name formatting
         const nameMap = {
+            // Allowed sportsbooks
+            'ESPN Bet': 'ESPN BET',
+            'Fanatics': 'FANATICS',
+            'Caesars': 'CAESARS',
+            'Bet365': 'BET365',
             'DraftKings': 'DRAFTKINGS',
+            'Unabated': 'UNABATED',
             'FanDuel': 'FANDUEL',
             'BetMGM': 'BETMGM',
-            'Caesars': 'CAESARS',
+            
+            // Other sportsbooks
             'BetRivers': 'BETRIVERS',
             'PointsBet': 'POINTSBET',
             'WynnBET': 'WYNNBET'
@@ -464,7 +552,12 @@ class OddsDisplay {
         let bestAway = null;
         let bestHome = null;
 
-        marketOdds.forEach(odds => {
+        // Filter market odds to only include allowed sportsbooks
+        const filteredMarketOdds = marketOdds.filter(odds => 
+            this.isAllowedSportsbook(odds.sportsbook)
+        );
+
+        filteredMarketOdds.forEach(odds => {
             if (this.currentBetType === 'moneyline') {
                 if (odds.away_team?.odds) {
                     if (!bestAway || this.isBetterOdds(odds.away_team.odds, bestAway.odds, odds.away_team.odds > 0)) {
@@ -578,6 +671,7 @@ class OddsDisplay {
 
     renderSportsbookOdds(marketOdds, bestOdds) {
         return this.sportsbooks.map(sportsbook => {
+            // Only show odds for sportsbooks that are in our filtered list
             const odds = marketOdds.find(o => o.sportsbook === sportsbook);
             return this.renderOddsColumn(odds, bestOdds, sportsbook);
         }).join('');
