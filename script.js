@@ -191,9 +191,15 @@ class OddsDisplay {
     }
 
     getSportsbookLogoUrl(sportsbook) {
-        // Comprehensive sportsbook logo mapping - prioritizing allowed sportsbooks
+        // First try local uploaded logos - these take priority
+        const localLogoUrl = this.getLocalLogoUrl(sportsbook);
+        if (localLogoUrl) {
+            return localLogoUrl;
+        }
+
+        // Fallback to external URLs if local logos aren't available
         const logoMap = {
-            // Allowed sportsbooks - using more reliable CDN sources
+            // Allowed sportsbooks - external fallbacks
             'ESPN Bet': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@v9/icons/espn.svg',
             'Fanatics': 'https://seeklogo.com/images/F/fanatics-logo-2B2A928BDC-seeklogo.com.png',
             'Caesars': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Caesars_Palace_logo.svg/200px-Caesars_Palace_logo.svg.png',
@@ -239,7 +245,24 @@ class OddsDisplay {
     }
 
     getLocalLogoUrl(sportsbook) {
-        // Try to get logo from local server endpoint
+        // Map of sportsbook names to their actual uploaded file names
+        const fileMap = {
+            'ESPN Bet': 'ESPN Bet.jpg',
+            'Fanatics': 'Fanatics.png', 
+            'Caesars': 'Caesers.png', // Note: misspelled in uploaded file
+            'Bet365': 'Bet365.jpg',
+            'DraftKings': 'Draftkings.jpeg',
+            'Unabated': 'Unabated.jpg',
+            'FanDuel': 'FanDuel.jpg',
+            'BetMGM': 'BetMGM.png'
+        };
+        
+        // Check if we have a specific file mapping for this sportsbook
+        if (fileMap[sportsbook]) {
+            return `http://localhost:5000/logos/${encodeURIComponent(fileMap[sportsbook])}`;
+        }
+        
+        // Fallback to the original logic
         return `http://localhost:5000/logos/${encodeURIComponent(sportsbook)}`;
     }
 
@@ -295,20 +318,20 @@ class OddsDisplay {
             img.alt = sportsbook;
             img.className = 'sportsbook-logo loading';
             
-            // Multi-tier fallback system
+            // Multi-tier fallback system - prioritize local files
             let currentTier = 0;
             const tryNextLogo = () => {
                 img.classList.remove('loading', 'fallback');
                 
-                if (currentTier === 0 && externalLogoUrl) {
-                    // Tier 1: Try external logo URL
-                    img.className = 'sportsbook-logo loading';
-                    img.src = externalLogoUrl;
-                    currentTier++;
-                } else if (currentTier === 1) {
-                    // Tier 2: Try local server logo
+                if (currentTier === 0) {
+                    // Tier 1: Try local server logo first
                     img.className = 'sportsbook-logo loading';
                     img.src = localLogoUrl;
+                    currentTier++;
+                } else if (currentTier === 1 && externalLogoUrl) {
+                    // Tier 2: Try external logo URL
+                    img.className = 'sportsbook-logo loading';
+                    img.src = externalLogoUrl;
                     currentTier++;
                 } else {
                     // Tier 3: Use generated fallback

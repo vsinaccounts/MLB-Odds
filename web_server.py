@@ -125,10 +125,24 @@ def serve_test_data():
 def serve_logo(sportsbook):
     """Serve sportsbook logos with fallback to generated SVG."""
     try:
-        # Try to serve a local logo file if it exists
-        logo_path = f'logos/{sportsbook.lower()}.png'
-        if os.path.exists(logo_path):
-            return send_from_directory('logos', f'{sportsbook.lower()}.png', mimetype='image/png')
+        # First try to serve the file as requested (for direct file name requests)
+        direct_path = f'logos/{sportsbook}'
+        if os.path.exists(direct_path):
+            # Determine MIME type based on file extension
+            if sportsbook.lower().endswith('.png'):
+                return send_from_directory('logos', sportsbook, mimetype='image/png')
+            elif sportsbook.lower().endswith('.jpg') or sportsbook.lower().endswith('.jpeg'):
+                return send_from_directory('logos', sportsbook, mimetype='image/jpeg')
+            else:
+                return send_from_directory('logos', sportsbook)
+        
+        # Try different file extensions for the sportsbook name
+        extensions = ['.png', '.jpg', '.jpeg', '.svg']
+        for ext in extensions:
+            logo_path = f'logos/{sportsbook.lower()}{ext}'
+            if os.path.exists(logo_path):
+                mimetype = 'image/png' if ext == '.png' else 'image/jpeg' if ext in ['.jpg', '.jpeg'] else 'image/svg+xml'
+                return send_from_directory('logos', f'{sportsbook.lower()}{ext}', mimetype=mimetype)
         
         # Generate SVG fallback
         from flask import Response
@@ -136,10 +150,15 @@ def serve_logo(sportsbook):
         
         # Color mapping for sportsbooks
         colors = {
+            'espn bet': '#d50000',
+            'fanatics': '#0066cc',
             'fanduel': '#1e3a8a',
             'draftkings': '#f59e0b', 
             'betmgm': '#059669',
             'caesars': '#dc2626',
+            'caesers': '#dc2626',  # Handle misspelling
+            'bet365': '#ffb400',
+            'unabated': '#4a90e2',
             'betrivers': '#0891b2',
             'pointsbet': '#7c3aed',
             'wynnbet': '#be123c',
