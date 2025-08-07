@@ -247,11 +247,11 @@ class OddsDisplay {
     getLocalLogoUrl(sportsbook) {
         // Map of sportsbook names to their exact uploaded file names
         const fileMap = {
-            'ESPN Bet': 'ESPN Bet.jpg',        // Note: space in filename
+            'ESPN Bet': 'ESPN%20Bet.jpg',        // URL encoded space
             'Fanatics': 'Fanatics.png', 
-            'Caesars': 'Caesers.png',          // Note: misspelled as "Caesers" in actual file
+            'Caesars': 'Caesers.png',            // Note: misspelled as "Caesers" in actual file
             'Bet365': 'Bet365.jpg',
-            'DraftKings': 'Draftkings.jpeg',   // Note: lowercase 'k' in actual file
+            'DraftKings': 'Draftkings.jpeg',     // Note: lowercase 'k' in actual file
             'Unabated': 'Unabated.jpg',
             'FanDuel': 'FanDuel.jpg',
             'BetMGM': 'BetMGM.png'
