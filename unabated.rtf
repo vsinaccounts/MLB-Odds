@@ -1,0 +1,1046 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2821
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red101\green100\blue97;\red227\green63\blue70;
+\red133\green0\blue67;\red135\green91\blue44;\red135\green135\blue135;}
+{\*\expandedcolortbl;;\cspthree\c0\c0\c0;\cspthree\c46991\c46683\c45604;\cspthree\c85443\c38072\c36217;
+\cspthree\c54876\c10354\c32847;\cspthree\c57797\c43855\c26089;\cspthree\c60000\c60000\c60000;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs60 \cf2 Unabated API Reference (v.2.0)\
+
+\fs24 \cf3 Updated 1/17/25\
+
+\fs36 \cf2 Overview\
+
+\fs24 The Unabated API provides programmatic access to all of Unabated\'92s Game Odds\
+and Props market, game state, and scoring data. Some key features and points of\
+the API are:\
+1. A \'93snapshot\'94 endpoint to retrieve the current lines for all markets across all\
+sports that Unabated offers. This includes all sportsbook, team, and player\
+metadata.\
+2. A \'93changes\'94 endpoint to retrieve market line changes that occurred since a\
+specified timestamp.\
+3. No additional data latency beyond that which we have on our backend as we\
+pull information from sportsbooks. These latency categories are specified in\
+the sportsbook metadata, and can also be seen in our Game Odds and Props\
+Odds UI as colored dots in the grid headers:\
+a. Green = Real-time\
+b. Yellow = Under 30 seconds\
+c. Orange = Over 30 seconds\
+4. There are no call limits or API throttling, but you should not call these\
+endpoints more than 1 time per second as there will be no change in\
+information during that time and would just be wasted compute time on our\
+servers and your client.\
+You can leverage the endpoints to serve your needs. If you want to be staying on\
+top of every market movement you would use a combination of the Snapshot\
+Endpoint and Changes Endpoint as described in the section below. Or, if you are\
+just interested in taking occasio\
+nal snapshots of the markets you can simplify your implementation by just calling\
+the Snapshot Endpoint. If you want to get the data more frequently than every 30\
+
+\fs15 Unabated API Reference (v.2.0) 1
+\fs24 seconds then for performance reasons you should use the Snapshot Endpoint to\
+get the initial odds and metadata coupled with Changes Endpoint to get ongoing\
+changes. You can also use the Snapshot Endpoint as a refresh point for example\
+in a case where your processing was interrupted and you need to get back to the\
+current market state.\
+
+\fs36 Accessing Unabated Game Odds\
+
+\fs30 Snapshot Endpoint\
+
+\fs24 A complete snapshot of current game odds can be retrieved from the following\
+URL via a GET request. Note that authentication is required here; substitute the\
+API key you received from the Unabated team in place of YOUR_API_KEY:\
+Game Odds Markets\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/markets/gameOdds?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 Props Markets\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/markets/playerProps?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 Golf Odds Markets (currently in Preview mode, endpoint or interface may change)\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/api/markets/golfOdds?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 The structure of the data returned from this URL is described in detail in the\
+section of this document titled Full Game Odds JSON Description.\
+
+\fs30 Changes Endpoint\
+
+\fs24 After retrieving odds from this URL, you can retrieve incremental updates to those\
+odds on an ongoing basis. The following URL will retrieve the subset of odds that\
+have changed within the last several seconds. Note that authentication is required\
+here as well:\
+Game Odds Markets\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/markets/changes?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 Props Markets\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/markets/playerProps/changes?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 Golf Odds Markets (currently in Preview mode, endpoint or interface may change)\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/api/markets/golfOdds?x-api-key= YOUR_API_KEY\
+
+\fs15 \cf2 Unabated API Reference (v.2.0) 2
+\fs24 The structure of the data returned from this URL is described in detail in the\
+section of this document titled Incremental Game Odds JSON Description.\
+One of the top-level fields in the response is a number, lastTimestamp (note: this\
+number is not interpretable as a Unix timestamp). You should add this timestamp\
+to the changes URL to get all the changes that have occurred since the last time\
+you called it, like so:\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/markets/changes/68327798229687600?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 Putting this together, you can construct a program that continuously updates odds\
+from Unabated by following these steps:\
+1. Call gameOdds to get an initial full snapshot of odds for all events currently on\
+the calendar for that day and several upcoming days.\
+2. Call changes with no arguments to get an initial set of incremental changes.\
+3. Continue calling changes in a loop, adding the top-level lastTimestamp value\
+seen in the previous response from changes.\
+4. Repeat step 3 for as long as you wish to keep getting updated odds, no more\
+than once per second.\
+Notes:\
+Unabated updates odds approximately once per second. Therefore, you\
+should avoid calling changes more frequently than once per second from your\
+program.\
+If your program is paused for a while, the lastTimestamp value you have may\
+become stale. In that event, changes will not be able to return incremental\
+changes. It will fail and indicate this with a top-level resultCode value of\
+"Failed". When this happens, you will need to restart the process from step 1.\
+
+\fs36 Reference Data Description\
+
+\fs30 Bet Types\
+
+\fs24 To get a list of all bet types available do an HTTP GET to:\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/betTypes?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 URL Parameters:\
+
+\fs15 Unabated API Reference (v.2.0) 3
+\fs21 Field Type Description\
+
+\fs17\fsmilli8925 \cf4 changedSince 
+\fs21 \cf2 String\
+The datetime after which changes or additions\
+occurred to the bet types (in UTC time, ISO 8601\
+format). Will only return those rows. If null/empty, then\
+all bet types are returned.\
+
+\fs24 Response Fields:\
+
+\fs21 Attribute Type Description\
+
+\fs17\fsmilli8925 \cf4 name 
+\fs21 \cf2 String The display name of the prop.\
+
+\fs17\fsmilli8925 \cf4 internalName 
+\fs21 \cf2 String The internal name used for the prop.\
+
+\fs17\fsmilli8925 \cf4 nameShort 
+\fs21 \cf2 String A shortened version of the prop name.\
+
+\fs17\fsmilli8925 \cf4 nameMobile 
+\fs21 \cf2 String A mobile-friendly version of the name.\
+
+\fs17\fsmilli8925 \cf4 description 
+\fs21 \cf2 String or null A detailed description of the prop, if available.\
+
+\fs17\fsmilli8925 \cf4 marketTypeId 
+\fs21 \cf2 Integer\
+The type ID of the market.\
+0 = Not Used\
+1 = Game Odds\
+2 = Team Futures\
+3 = Props\
+4 = Player Futures\
+
+\fs17\fsmilli8925 \cf4 active 
+\fs21 \cf2 Boolean Indicates if the bet type is currently active.\
+
+\fs17\fsmilli8925 \cf4 leagues 
+\fs21 \cf2 Array of Integer The league ids to which the bet type is applicable.\
+
+\fs17\fsmilli8925 \cf4 createdOn 
+\fs21 \cf2 String The creation date and time in ISO 8601 format.\
+
+\fs17\fsmilli8925 \cf4 createdBy 
+\fs21 \cf2 String or null The identifier of the creator, if any.\
+
+\fs17\fsmilli8925 \cf4 modifiedOn 
+\fs21 \cf2 String The last modification date and time in ISO 8601 format.\
+
+\fs17\fsmilli8925 \cf4 modifiedBy 
+\fs21 \cf2 String or null The identifier of the last modifier, if any.\
+
+\fs17\fsmilli8925 \cf4 id 
+\fs21 \cf2 Integer The unique identifier for the prop.\
+
+\fs30 Market Sources\
+
+\fs24 To get a list of all market sources (sportsbooks) available do an HTTP GET to:\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/marketSources?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 URL Parameters:\
+
+\fs21 Field Type Description\
+
+\fs15 Unabated API Reference (v.2.0) 4
+\fs17\fsmilli8925 \cf4 changedSince 
+\fs21 \cf2 String\
+The datetime after which changes or additions\
+occurred to the market sources (in UTC time, ISO 8601\
+format). Will only return those rows. If null/empty, then\
+all market sources that your API key has access to are\
+returned.\
+
+\fs24 Response Fields:\
+
+\fs21 Attribute Type Description\
+
+\fs17\fsmilli8925 \cf4 name 
+\fs21 \cf2 String 
+\fs17\fsmilli8925 \cf4 logoUrl 
+\fs21 \cf2 String 
+\fs17\fsmilli8925 \cf4 thumbnailUrl 
+\fs21 \cf2 String 
+\fs17\fsmilli8925 \cf4 siteUrl 
+\fs21 \cf2 String or null 
+\fs17\fsmilli8925 \cf4 isActive 
+\fs21 \cf2 Boolean 
+\fs17\fsmilli8925 \cf4 statusId 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 propsStatusId 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 futuresStatusId 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 createdOn 
+\fs21 \cf2 String 
+\fs17\fsmilli8925 \cf4 createdBy 
+\fs21 \cf2 String or null 
+\fs17\fsmilli8925 \cf4 modifiedOn 
+\fs21 \cf2 String 
+\fs17\fsmilli8925 \cf4 modifiedBy 
+\fs21 \cf2 String or null The name of the market source (e.g., sportsbook).\
+URL to the logo image of the market source.\
+URL to the thumbnail image of the market source.\
+URL to the website of the market source, if available.\
+Indicates if the market source is currently active.\
+The status identifier of the market source.\
+1 = Real-time\
+2 = <30s latency\
+3 = >30s latency\
+The status identifier for props of the market source.\
+1 = Real-time\
+2 = <30s latency\
+3 = >30s latency\
+The status identifier for futures of the market source.\
+1 = Real-time\
+2 = <30s latency\
+3 = >30s latency\
+The creation date and time in ISO 8601 format.\
+The identifier of the creator, if any.\
+The last modification date and time in ISO 8601 format.\
+The identifier of the last modifier, if any.\
+
+\fs17\fsmilli8925 \cf4 id 
+\fs21 \cf2 Integer The unique identifier for the market source.\
+
+\fs30 Teams\
+
+\fs24 To get a list of all teams available do an HTTP GET to:\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/teams?x-api-key= YOUR_API_KEY\
+
+\fs15 \cf2 Unabated API Reference (v.2.0) 5
+\fs24 URL Parameters:\
+
+\fs21 Field Type Description\
+
+\fs17\fsmilli8925 \cf4 leagues 
+\fs21 \cf2 String\
+
+\fs17\fsmilli8925 \cf4 changedSince 
+\fs21 \cf2 String\
+Comma-delimited list of League Ids (see Leagues table\
+above). If null/empty then data from all leagues is\
+returned.\
+The datetime after which changes or additions\
+occurred to the teams (in UTC time, ISO 8601 format).\
+Will only return those rows. If null/empty, then all teams\
+are returned.\
+
+\fs24 Response Fields:\
+
+\fs21 Attribute Type Description\
+
+\fs17\fsmilli8925 \cf4 name 
+\fs21 \cf2 String The name of the team.\
+
+\fs17\fsmilli8925 \cf4 abbreviation 
+\fs21 \cf2 String The abbreviation of the team name.\
+
+\fs17\fsmilli8925 \cf4 logoUrl leagueId divisionId divisionAbbreviation conferenceAbbreviation createdOn createdBy modifiedOn modifiedBy 
+\fs21 \cf2 String Integer Integer or null String or null String or null String String or null String String or null URL to the logo image of the team.\
+The identifier of the league the team belongs to.\
+The identifier of the division the team belongs to,\
+if any.\
+The abbreviation of the division name, if any.\
+The abbreviation of the conference name, if any.\
+The creation date and time in ISO 8601 format.\
+The identifier of the creator, if any.\
+The last modification date and time in ISO 8601\
+format.\
+The identifier of the last modifier, if any.\
+
+\fs17\fsmilli8925 \cf4 id 
+\fs21 \cf2 Integer The unique identifier for the team.\
+
+\fs30 Players\
+
+\fs24 To get a list of all players available do an HTTP GET to:\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/players?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 URL Parameters:\
+
+\fs15 Unabated API Reference (v.2.0) 6
+\fs21 Field Type Description\
+
+\fs17\fsmilli8925 \cf4 leagues 
+\fs21 \cf2 String\
+
+\fs17\fsmilli8925 \cf4 changedSince 
+\fs21 \cf2 String\
+Comma-delimited list of League Ids (see Leagues table\
+above). If null/empty then data from all leagues is\
+returned.\
+The datetime after which changes or additions\
+occurred to the players (in UTC time, ISO 8601 format).\
+Will only return those rows. If null/empty, then all\
+players are returned.\
+
+\fs24 Response Fields:\
+
+\fs21 Attribute Type Description\
+
+\fs17\fsmilli8925 \cf4 headshotUrl 
+\fs21 \cf2 String or null URL to the player's headshot image, if available.\
+
+\fs17\fsmilli8925 \cf4 firstName 
+\fs21 \cf2 String The first name of the player.\
+
+\fs17\fsmilli8925 \cf4 lastName 
+\fs21 \cf2 String The last name of the player.\
+
+\fs17\fsmilli8925 \cf4 preferredName 
+\fs21 \cf2 String or null The preferred name of the player, if available.\
+
+\fs17\fsmilli8925 \cf4 jerseyNumber 
+\fs21 \cf2 Integer or null The jersey number of the player, if available.\
+
+\fs17\fsmilli8925 \cf4 country 
+\fs21 \cf2 String or null The country of the player.\
+
+\fs17\fsmilli8925 \cf4 height 
+\fs21 \cf2 Integer The height of the player in inches.\
+
+\fs17\fsmilli8925 \cf4 weight 
+\fs21 \cf2 Integer The weight of the player in pounds.\
+
+\fs17\fsmilli8925 \cf4 position 
+\fs21 \cf2 String or null The position of the player, if available.\
+
+\fs17\fsmilli8925 \cf4 birthDate 
+\fs21 \cf2 String The birth date of the player in ISO 8601 format.\
+
+\fs17\fsmilli8925 \cf4 leagueId 
+\fs21 \cf2 Integer The identifier of the league the player belongs to.\
+
+\fs17\fsmilli8925 \cf4 team 
+\fs21 \cf2 String or null The team the player belongs to, if any.\
+
+\fs17\fsmilli8925 \cf4 createdOn 
+\fs21 \cf2 String The creation date and time in ISO 8601 format.\
+
+\fs17\fsmilli8925 \cf4 createdBy 
+\fs21 \cf2 Integer or null The identifier of the creator, if any.\
+
+\fs17\fsmilli8925 \cf4 modifiedOn 
+\fs21 \cf2 String The last modification date and time in ISO 8601 format.\
+
+\fs17\fsmilli8925 \cf4 modifiedBy 
+\fs21 \cf2 Integer or null The identifier of the last modifier, if any.\
+
+\fs17\fsmilli8925 \cf4 id 
+\fs21 \cf2 Integer The unique identifier for the player.\
+
+\fs30 Upcoming Events\
+
+\fs24 To get a list of upcoming events do an HTTP GET to the following URL. This will\
+return all scheduled, cancelled, postponed, and delayed events, that are within our\
+
+\fs15 Unabated API Reference (v.2.0) 7
+\fs24 \'93markets window\'94, that have not yet started. The \'93markets window\'94 is defined.\
+
+\fs16\fsmilli8287 \cf4 https://partner-api.unabated.com/v2/events/upcoming?x-api-key= YOUR_API_KEY\
+
+\fs24 \cf2 URL Parameters:\
+
+\fs21 Field Type Description\
+
+\fs17\fsmilli8925 \cf4 leagues 
+\fs21 \cf2 String\
+
+\fs17\fsmilli8925 \cf4 changedSince 
+\fs21 \cf2 String\
+Comma-delimited list of League Ids (see Leagues table\
+above). If null/empty then data from all leagues is\
+returned.\
+The datetime after which changes or additions\
+occurred to the events (in UTC time, ISO 8601 format).\
+Will only return those rows. If null/empty, then all\
+events are returned.\
+
+\fs24 Response Fields:\
+
+\fs21 Attribute Type Description\
+
+\fs17\fsmilli8925 \cf4 name 
+\fs21 \cf2 String The name of the event.\
+The start date and time of the event in ISO 8601\
+
+\fs17\fsmilli8925 \cf4 eventStart 
+\fs21 \cf2 String\
+format.\
+
+\fs17\fsmilli8925 \cf4 eventStartOverride 
+\fs21 \cf2 String or null The overridden start date and time, if any.\
+
+\fs17\fsmilli8925 \cf4 eventEnd 
+\fs21 \cf2 String or null The end date and time of the event, if any.\
+
+\fs17\fsmilli8925 \cf4 eventEndOverride 
+\fs21 \cf2 String or null The overridden end date and time, if any.\
+
+\fs17\fsmilli8925 \cf4 statusId 
+\fs21 \cf2 Integer\
+Enumeration describing the state of the event:\
+1: Pre-game\
+2: Live\
+3: Final\
+4: Delayed\
+5: Postponed\
+6: Cancelled\
+
+\fs17\fsmilli8925 \cf4 statusIdOriginal 
+\fs21 \cf2 Integer The original status identifier of the event.\
+
+\fs17\fsmilli8925 \cf4 statusIdOverride 
+\fs21 \cf2 Integer or null The overridden status identifier, if any.\
+
+\fs17\fsmilli8925 \cf4 leagueId 
+\fs21 \cf2 Integer The identifier of the league the event belongs to.\
+
+\fs17\fsmilli8925 \cf4 venueId 
+\fs21 \cf2 Integer or null The identifier of the venue, if any.\
+
+\fs17\fsmilli8925 \cf4 seasonId 
+\fs21 \cf2 Integer The identifier of the season.\
+
+\fs17\fsmilli8925 \cf4 seasonPartId 
+\fs21 \cf2 Integer The identifier of the part of the season.\
+
+\fs15 Unabated API Reference (v.2.0) 8
+\fs17\fsmilli8925 \cf4 gameClock 
+\fs21 \cf2 String or null 
+\fs17\fsmilli8925 \cf4 periodTypeId 
+\fs21 \cf2 Integer or null 
+\fs17\fsmilli8925 \cf4 overtimeNumber 
+\fs21 \cf2 Integer or null 
+\fs17\fsmilli8925 \cf4 eventTeams 
+\fs21 \cf2 Array 
+\fs17\fsmilli8925 \cf4 createdOn 
+\fs21 \cf2 String 
+\fs17\fsmilli8925 \cf4 createdBy 
+\fs21 \cf2 Integer or null 
+\fs17\fsmilli8925 \cf4 modifiedOn 
+\fs21 \cf2 String\
+
+\fs17\fsmilli8925 \cf4 modifiedBy 
+\fs21 \cf2 Integer or null The current game clock, if any.\
+The identifier of the period type, if any.\
+The number of overtimes, if any.\
+An array of team objects participating in the event.\
+The creation date and time in ISO 8601 format.\
+The identifier of the creator, if any.\
+The last modification date and time in ISO 8601\
+format.\
+The identifier of the last modifier, if any.\
+
+\fs17\fsmilli8925 \cf4 id 
+\fs21 \cf2 Integer The unique identifier for the event.\
+
+\fs36 Event Teams Attribute Descriptions\
+
+\fs21 Attribute Type Description\
+
+\fs17\fsmilli8925 \cf4 eventId 
+\fs21 \cf2 Integer The identifier of the event.\
+
+\fs17\fsmilli8925 \cf4 sideId 
+\fs21 \cf2 Integer The side identifier (0 for home, 1 for away).\
+
+\fs17\fsmilli8925 \cf4 score 
+\fs21 \cf2 Integer or null The score of the team, if any.\
+
+\fs17\fsmilli8925 \cf4 rotationNumber 
+\fs21 \cf2 Integer The rotation number of the team.\
+
+\fs17\fsmilli8925 \cf4 name 
+\fs21 \cf2 String The name of the team.\
+
+\fs17\fsmilli8925 \cf4 abbreviation 
+\fs21 \cf2 String The abbreviation of the team name.\
+
+\fs17\fsmilli8925 \cf4 logoUrl 
+\fs21 \cf2 String URL to the logo image of the team.\
+
+\fs17\fsmilli8925 \cf4 leagueId 
+\fs21 \cf2 Integer The identifier of the league the team belongs to.\
+
+\fs17\fsmilli8925 \cf4 divisionId 
+\fs21 \cf2 Integer or null The identifier of the division the team belongs to,\
+if any.\
+
+\fs17\fsmilli8925 \cf4 divisionAbbreviation 
+\fs21 \cf2 String or null The abbreviation of the division name, if any.\
+
+\fs17\fsmilli8925 \cf4 conferenceAbbreviation 
+\fs21 \cf2 String or null The abbreviation of the conference name, if any.\
+
+\fs17\fsmilli8925 \cf4 createdOn 
+\fs21 \cf2 String The creation date and time in ISO 8601 format.\
+
+\fs17\fsmilli8925 \cf4 createdBy 
+\fs21 \cf2 String or null The identifier of the creator, if any.\
+
+\fs17\fsmilli8925 \cf4 modifiedOn 
+\fs21 \cf2 String The last modification date and time in ISO 8601\
+format.\
+
+\fs17\fsmilli8925 \cf4 modifiedBy 
+\fs21 \cf2 String or null The identifier of the last modifier, if any.\
+
+\fs15 Unabated API Reference (v.2.0) 9
+\fs17\fsmilli8925 \cf4 id 
+\fs21 \cf2 Integer The unique identifier for the team.\
+
+\fs36 Full Game Odds JSON Description\
+
+\fs24 Here is a more complete description of the JSON object returned from gameOdds.\
+
+\fs30 Game Odds JSON Structure\
+
+\fs24 At the highest level the Game Odds JSON has sections for:\
+Market Sources\
+Teams\
+Game Odds Events\
+Also implied in this JSON are Market and Market Line objects. Following is a\
+description of all these sections/objects.\
+
+\fs30 Market Object\
+
+\fs24 The concept of a Market is a unique combination of the following things:\
+Event\
+Side (Away/Home, Over/Under)\
+Bet Type\
+Period Type\
+Alternate Number (for future use, not used at this time)\
+Pregame/Live\
+
+\fs30 Market Line Object\
+
+\fs24 A Market Line is a unique combination of:\
+Market\
+Market Source (typically a sportsbook or exchange)\
+A detailed field description of the JSON associated with a market line is provided\
+below.\
+
+\fs15 Unabated API Reference (v.2.0) 10
+\fs30 Market Sources Section\
+
+\fs24 Market Sources are typically sportsbooks or exchanges, but could be a consensus\
+line as well (Unabated Line for example). The detailed market source data can be\
+found in the marketSources section.\
+
+\fs30 Teams Section\
+
+\fs24 The teams section includes detailed team data that is referenced by team id in the\
+gameOddsEvents section.\
+
+\fs30 Game Odds Events Section\
+
+\fs24 The gameOddsEvents section is where you can find all the market data for all the\
+market sources. It is a keyed object of this format:\
+
+\fs16\fsmilli8287 \cf4 lg\{league-id\}:pt\{period-type-id\}:\{pregame/live\}\
+
+\fs24 \cf2 For example, all the NFL first half pre-game lines would be under the key\
+
+\fs16\fsmilli8287 \cf4 lg1:pt2:pregame 
+\fs24 \cf2 . And all the NBA in-game full game lines would be under the key\
+
+\fs16\fsmilli8287 \cf4 lg3:pt1:live 
+\fs24 \cf2 .\
+Within each of these keys is an array of Game Odds Event objects which hold the\
+information for every game and market line.\
+
+\fs30 Game Odds Event Object Fields\
+
+\fs21 Field Type Description\
+
+\fs17\fsmilli8925 \cf4 eventId 
+\fs21 \cf2 Integer The unique static key of the event/game\
+The scheduled start time of the game (in\
+
+\fs17\fsmilli8925 \cf4 eventStart 
+\fs21 \cf2 Datetime\
+UTC)\
+
+\fs17\fsmilli8925 \cf4 eventEnd 
+\fs21 \cf2 Datetime The end time of the game (in UTC). For\
+future use.\
+Enumeration describing the state of the\
+
+\fs17\fsmilli8925 \cf4 statusId 
+\fs21 \cf2 Integer\
+event:\
+1: Pre-game\
+2: Live\
+3: Final\
+4: Delayed\
+
+\fs15 Unabated API Reference (v.2.0) 11
+\fs17\fsmilli8925 \cf4 gameClock 
+\fs21 \cf2 String\
+
+\fs17\fsmilli8925 \cf4 periodTypeId 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 overtimeNumber 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 eventTeams 
+\fs21 \cf2 Keyed Object\
+
+\fs17\fsmilli8925 \cf4 eventTeams.id 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 eventTeams.rotationNumber 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 eventTeams.score 
+\fs21 \cf2 Integer\
+
+\fs17\fsmilli8925 \cf4 gameOddsMarketSourceLines 
+\fs21 \cf2 Keyed Object\
+5: Postponed\
+6: Cancelled\
+Contains a description of the game state.\
+Typically the game clock. Example: 12:45 1H\
+Period Type (see Period Types table for\
+valid values) that the game is currently in.\
+A number indicating how many overtime\
+periods the game went to. Examples: An\
+MLB game that goes to the 12th inning will\
+have the number 12. A CFB game which\
+goes into 3 overtimes will have a 3.\
+Key: Side Index (see Side Index table for\
+valid values) Value: An Event Team object,\
+which has the following fields:\
+The team id from the Teams section of the\
+top-level JSON.\
+The standard Don Best id that is used by\
+brick-and-mortar sportsbooks to identify a\
+betting line.\
+The number of points that team scored in\
+the game.\
+Key: Format described below Value: A\
+Market Line object (see description in\
+\'93Market Line Object Fields\'94 below)\
+
+\fs24 The market line information is in the gameOddsMarketSourceLines section as a\
+keyed object with the following key structure:\
+
+\fs16\fsmilli8287 \cf4 si\{side-index\}:ms\{market-source-id\}:an\{alternate-line-index\}\
+
+\fs24 \cf2 Within that is another keyed object that is formatted as 
+\fs16\fsmilli8287 \cf4 bt\{bet-type-id\} 
+\fs24 \cf2 . For example,\
+a Sharp Book P spread line for the home team would look something like this:\
+\cf5 \'93si1\cf6 :\cf2 ms7\cf6 :\cf2 an0\'94\cf6 :\cf2  \cf7 \{\
+\cf5 \'93bt2\'94\cf6 :\cf2  \cf7 \{\
+\cf2 Market Line Object here\
+
+\fs15 Unabated API Reference (v.2.0) 12
+\fs24 \cf7 \}\
+\}\
+
+\f1\fs36 \cf2 \uc0\u55357 \u56481  
+\f0\fs24 Note that the alternate line index is not in use at this time, and the only\
+relevant key right now is 
+\fs16\fsmilli8287 \cf4 an0
+\fs24 \cf2 .\
+
+\fs30 Market Line Object Fields\
+
+\fs21 Field Type Description\
+
+\fs17\fsmilli8925 \cf4 marketLineId 
+\fs21 \cf2 Integer The unique static key of the Market Line\
+This is used for the web interface and can be ignored\
+
+\fs17\fsmilli8925 \cf4 isBlurred 
+\fs21 \cf2 Boolean\
+in the API.\
+true: data is fake/obfuscated\
+false: data is real\
+So in all cases a properly authenticated API\
+connection should always have a true value.\
+
+\fs17\fsmilli8925 \cf4 marketId 
+\fs21 \cf2 Integer The unique static key of the Market\
+
+\fs17\fsmilli8925 \cf4 marketSourceId 
+\fs21 \cf2 Integer The unique static key of the Market Source\
+
+\fs17\fsmilli8925 \cf4 points 
+\fs21 \cf2 Decimal The points that the line is set at. Examples: 52.5 total\
+points, -7.5 spread.\
+
+\fs17\fsmilli8925 \cf4 price 
+\fs21 \cf2 Integer The price in American odds format\
+
+\fs17\fsmilli8925 \cf4 americanPrice 
+\fs21 \cf2 Integer The price in American odds format\
+
+\fs17\fsmilli8925 \cf4 sourcePrice 
+\fs21 \cf2 Decimal The price in the native format of the market source\
+
+\fs17\fsmilli8925 \cf4 sourceFormat 
+\fs21 \cf2 Integer\
+Enumeration of odds format types: 1 = American, 2 =\
+Decimal, 3 = Percent, 4 = Probability, 5 = Sporttrade\
+(0 to 100)\
+
+\fs17\fsmilli8925 \cf4 alternateNumber 
+\fs21 \cf2 Integer For future use. Should always be 0.\
+
+\fs17\fsmilli8925 \cf4 statusId 
+\fs21 \cf2 Integer\
+Describes if the market line is on/off the board: 1:\
+Available, 2: Unavailable\
+
+\fs15 Unabated API Reference (v.2.0) 13
+\fs17\fsmilli8925 \cf4 sequenceNumber createdOn modifiedOn 
+\fs21 \cf2 Integer (64-bit) Unique key based on timestamp indicating the order of\
+when the market line change came in.\
+Datetime Datetime When the market line was first created (in UTC)\
+When the market line was last modified (in UTC)\
+
+\fs36 Full Props Odds JSON Description\
+
+\fs24 Here is a more complete description of the JSON object returned from\
+playerProps.\
+
+\fs30 Root Object: 
+\fs25\fsmilli12750 \cf4 propsPeopleEvents\
+
+\fs24 \cf2 Ex. lg5:pt1:pregame: League is MLB, period type is full-game, and odds are\
+pregame\
+
+\fs30 Event Object (within 
+\fs25\fsmilli12750 \cf4 lg\{league_id\}:pt\{period_type_id\}:\{pregame/live\}\
+
+\fs30 \cf2 array)\
+
+\fs21 Attribute Type Description\
+
+\fs17\fsmilli8925 \cf4 eventId 
+\fs21 \cf2 Integer Unique identifier for the event.\
+
+\fs17\fsmilli8925 \cf4 eventStart 
+\fs21 \cf2 String Start time of the event in ISO 8601 format.\
+
+\fs17\fsmilli8925 \cf4 eventName 
+\fs21 \cf2 String Name of the event.\
+
+\fs17\fsmilli8925 \cf4 personId 
+\fs21 \cf2 Integer Identifier for the person involved in the event.\
+
+\fs17\fsmilli8925 \cf4 teamId 
+\fs21 \cf2 Integer Identifier for the team.\
+
+\fs17\fsmilli8925 \cf4 playerPosition 
+\fs21 \cf2 String or null Position of the player.\
+Contains details of the teams involved in the\
+
+\fs17\fsmilli8925 \cf4 eventTeams 
+\fs21 \cf2 Object\
+event.\
+
+\fs17\fsmilli8925 \cf4 propsMarketSourcesLines 
+\fs21 \cf2 Object\
+Contains details of the props market lines for\
+the event.\
+
+\fs30 eventTeams Object\
+
+\fs24 0: Details of the first team.\
+
+\fs16\fsmilli8287 \cf4 id
+\fs24 \cf2 : Integer - Team identifier.\
+
+\fs16\fsmilli8287 \cf4 rotationNumber
+\fs24 \cf2 : Integer or null - Rotation number (if any).\
+
+\fs15 Unabated API Reference (v.2.0) 14
+\fs16\fsmilli8287 \cf4 score
+\fs24 \cf2 : Integer or null - Team score (if any).\
+1: Details of the second team.\
+
+\fs16\fsmilli8287 \cf4 id
+\fs24 \cf2 : Integer - Team identifier.\
+
+\fs16\fsmilli8287 \cf4 rotationNumber
+\fs24 \cf2 : Integer or null - Rotation number (if any).\
+
+\fs16\fsmilli8287 \cf4 score
+\fs24 \cf2 : Integer or null - Team score (if any).\
+
+\fs30 propsMarketSourcesLines Object\
+
+\fs24 Ex. si0:ms2:an0: Side is home/over, market source id is 2.\
+
+\fs30 Market Line Object (within 
+\fs25\fsmilli12750 \cf4 si\{side_id\}:ms\{market_source_id\}:an0\
+
+\fs30 \cf2 object)\
+
+\fs21 Attribute Type Description\
+Unique identifier for the market\
+
+\fs17\fsmilli8925 \cf4 marketLineId 
+\fs21 \cf2 Integer\
+line.\
+
+\fs17\fsmilli8925 \cf4 marketId 
+\fs21 \cf2 Integer Identifier for the market.\
+
+\fs17\fsmilli8925 \cf4 marketSourceId 
+\fs21 \cf2 Integer Identifier for the market source.\
+Points associated with the market\
+
+\fs17\fsmilli8925 \cf4 points 
+\fs21 \cf2 Decimal or null\
+line.\
+
+\fs17\fsmilli8925 \cf4 price 
+\fs21 \cf2 Decimal Price of the market line.\
+
+\fs17\fsmilli8925 \cf4 americanPrice 
+\fs21 \cf2 Decimal American price format.\
+
+\fs17\fsmilli8925 \cf4 sourcePrice 
+\fs21 \cf2 Decimal Original source price.\
+
+\fs17\fsmilli8925 \cf4 sourceFormat 
+\fs21 \cf2 Integer Format of the source price.\
+
+\fs17\fsmilli8925 \cf4 sourceData 
+\fs21 \cf2 String URL to the source data.\
+
+\fs17\fsmilli8925 \cf4 alternateNumber 
+\fs21 \cf2 Integer Alternate number (if any).\
+
+\fs17\fsmilli8925 \cf4 statusId 
+\fs21 \cf2 Integer Status identifier of the market line.\
+Sequence number of the market\
+
+\fs17\fsmilli8925 \cf4 sequenceNumber 
+\fs21 \cf2 Integer\
+line.\
+
+\fs17\fsmilli8925 \cf4 overrideType 
+\fs21 \cf2 String or null Override type (if any).\
+
+\fs17\fsmilli8925 \cf4 tm 
+\fs21 \cf2 String\
+Timestamp of the market line in\
+ISO 8601 format.\
+
+\fs15 Unabated API Reference (v.2.0) 15
+\fs17\fsmilli8925 \cf4 alternateLines\
+
+\fs21 \cf2 Market Line Object array, or null\
+or empty array\
+Alternate lines (if any).\
+
+\fs17\fsmilli8925 \cf4 bestAltPoints 
+\fs21 \cf2 Decimal or null Best alternate points (if any).\
+
+\fs17\fsmilli8925 \cf4 bestAltPrice 
+\fs21 \cf2 Decimal or null Best alternate price (if any).\
+
+\fs17\fsmilli8925 \cf4 bestAltSourcePrice 
+\fs21 \cf2 Decimal or null Best alternate source price (if any).\
+
+\fs17\fsmilli8925 \cf4 createdOn 
+\fs21 \cf2 String\
+Creation timestamp in ISO 8601\
+format.\
+
+\fs17\fsmilli8925 \cf4 createdBy 
+\fs21 \cf2 String or null Creator identifier (if any).\
+
+\fs17\fsmilli8925 \cf4 modifiedOn 
+\fs21 \cf2 String\
+Modification timestamp in ISO\
+8601 format.\
+
+\fs17\fsmilli8925 \cf4 modifiedBy 
+\fs21 \cf2 String or null Modifier identifier (if any).\
+
+\fs17\fsmilli8925 \cf4 id 
+\fs21 \cf2 Integer or null Unique identifier (if any).\
+
+\fs36 Reference Data\
+
+\fs30 Leagues\
+
+\fs21 League Id League Name\
+1 NFL\
+2 CFB\
+3 NBA\
+4 CBB\
+5 MLB\
+6 NHL\
+7 WNBA\
+8 PGA\
+
+\fs30 Period Types\
+
+\fs21 Period Type Id Period Type Name\
+1 Full Game\
+2 First Half\
+
+\fs15 Unabated API Reference (v.2.0) 16
+\fs21 3 Second Half\
+4 First Quarter\
+5 Second Quarter\
+6 Third Quarter\
+7 Fourth Quarter\
+8 First Period\
+9 Second Period\
+10 Third Period\
+11 First Inning\
+12 Second Inning\
+13 Third Inning\
+14 Fourth Inning\
+15 Fifth Inning\
+16 Sixth Inning\
+17 Seventh Inning\
+18 Eighth Inning\
+19 Ninth Inning\
+20 First Five Innings\
+21 Fourth Period\
+22 Round 1\
+23 Round 2\
+24 Round 3\
+25 Round 4\
+
+\fs30 Bet Types\
+
+\fs24 Here is a sample of the most commonly bet types. This is not an exhaustive list as\
+the available bet types change frequently. Utilize the endpoint to keep a current\
+list on your servers.\
+Find out current list of supported Bet Types here.\
+
+\fs15 Unabated API Reference (v.2.0) 17
+\fs30 Side Index\
+
+\fs21 Side Id Side Description\
+0 Away Team or Over\
+1 Home Team or Under\
+
+\fs36 Incremental Game Odds JSON Description\
+
+\fs24 Here is a more complete description of the JSON object returned from changes.\
+
+\fs30 Incremental Game Odds JSON Structure\
+
+\fs21 Field Type Description\
+
+\fs17\fsmilli8925 \cf4 lastTimestamp 
+\fs21 \cf2 Number\
+
+\fs17\fsmilli8925 \cf4 resultCode 
+\fs21 \cf2 String\
+
+\fs17\fsmilli8925 \cf4 results 
+\fs21 \cf2 Array\
+
+\fs17\fsmilli8925 \cf4 results.marketSources 
+\fs21 \cf2 Array\
+A value that can be used to poll\
+for the next set of changes.\
+Indicates whether the request was\
+successful. Values: "Success" or\
+"Failed".\
+Contains recent changes to game\
+odds. The elements of the array\
+are ordered from oldest to most\
+recent, so they should be\
+processed in the order they were\
+returned. Each element of this\
+array is a JSON object with the\
+following fields (you will see other\
+fields besides these, but they can\
+be ignored):\
+Any market sources that have\
+recently changed. It is relatively\
+rare for this array to be non-\
+empty. When it is, it is usually\
+because a market source has\
+been temporarily disabled or re-\
+enabled by Unabated.\
+
+\fs17\fsmilli8925 \cf4 results.events 
+\fs21 \cf2 Array Any events that have recently\
+changed. The most common\
+changes to events are to their\
+
+\fs15 Unabated API Reference (v.2.0) 18
+\fs17\fsmilli8925 \cf4 results.gameOdds.gameOddsEvents 
+\fs21 \cf2 Object\
+pregame/live/final status and\
+score/time remaining.\
+Any odds that have recently\
+changed. This object has the\
+same structure as detailed in the\
+Game Odds Events Section\
+portion of this document.\
+
+\fs15 Unabated API Reference (v.2.0) 19}

@@ -1,0 +1,227 @@
+{
+  "feed_info": {
+    "title": "MLB Odds Feed - Unabated API",
+    "description": "Today's MLB odds including spread, moneyline, and totals from all available sportsbooks",
+    "generated_at": "2025-01-16T20:30:00.000Z",
+    "source": "Unabated API",
+    "total_games": 2,
+    "supported_sportsbooks": [
+      "Pinnacle",
+      "Circa",
+      "FanDuel",
+      "DraftKings",
+      "BetMGM",
+      "Bovada",
+      "BetOnline",
+      "Bookmaker",
+      "BetRivers",
+      "Caesars",
+      "PointsBet",
+      "WynnBET"
+    ],
+    "market_types": [
+      "spread",
+      "moneyline",
+      "total"
+    ]
+  },
+  "games": [
+    {
+      "game_id": "mlb_2025_01_16_yankees_redsox",
+      "event_name": "New York Yankees at Boston Red Sox",
+      "game_time": "2025-01-16T19:10:00Z",
+      "away_team": "New York Yankees",
+      "home_team": "Boston Red Sox",
+      "status": "scheduled",
+      "odds": {
+        "spread": [
+          {
+            "sportsbook": "DraftKings",
+            "away_team": {
+              "spread": -1.5,
+              "odds": -110
+            },
+            "home_team": {
+              "spread": 1.5,
+              "odds": -110
+            },
+            "last_updated": "2025-01-16T20:25:00Z"
+          },
+          {
+            "sportsbook": "FanDuel",
+            "away_team": {
+              "spread": -1.5,
+              "odds": -115
+            },
+            "home_team": {
+              "spread": 1.5,
+              "odds": -105
+            },
+            "last_updated": "2025-01-16T20:28:00Z"
+          },
+          {
+            "sportsbook": "BetMGM",
+            "away_team": {
+              "spread": -1.5,
+              "odds": -108
+            },
+            "home_team": {
+              "spread": 1.5,
+              "odds": -112
+            },
+            "last_updated": "2025-01-16T20:24:00Z"
+          }
+        ],
+        "moneyline": [
+          {
+            "sportsbook": "DraftKings",
+            "away_team": {
+              "odds": -150
+            },
+            "home_team": {
+              "odds": 130
+            },
+            "last_updated": "2025-01-16T20:25:00Z"
+          },
+          {
+            "sportsbook": "FanDuel",
+            "away_team": {
+              "odds": -145
+            },
+            "home_team": {
+              "odds": 125
+            },
+            "last_updated": "2025-01-16T20:28:00Z"
+          },
+          {
+            "sportsbook": "BetMGM",
+            "away_team": {
+              "odds": -152
+            },
+            "home_team": {
+              "odds": 132
+            },
+            "last_updated": "2025-01-16T20:24:00Z"
+          }
+        ],
+        "total": [
+          {
+            "sportsbook": "DraftKings",
+            "total": 8.5,
+            "over": {
+              "odds": -110
+            },
+            "under": {
+              "odds": -110
+            },
+            "last_updated": "2025-01-16T20:25:00Z"
+          },
+          {
+            "sportsbook": "FanDuel",
+            "total": 8.5,
+            "over": {
+              "odds": -105
+            },
+            "under": {
+              "odds": -115
+            },
+            "last_updated": "2025-01-16T20:28:00Z"
+          },
+          {
+            "sportsbook": "BetMGM",
+            "total": 8.5,
+            "over": {
+              "odds": -112
+            },
+            "under": {
+              "odds": -108
+            },
+            "last_updated": "2025-01-16T20:24:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "game_id": "mlb_2025_01_16_dodgers_giants",
+      "event_name": "Los Angeles Dodgers at San Francisco Giants",
+      "game_time": "2025-01-16T22:15:00Z",
+      "away_team": "Los Angeles Dodgers",
+      "home_team": "San Francisco Giants",
+      "status": "scheduled",
+      "odds": {
+        "spread": [
+          {
+            "sportsbook": "DraftKings",
+            "away_team": {
+              "spread": -2.5,
+              "odds": -105
+            },
+            "home_team": {
+              "spread": 2.5,
+              "odds": -115
+            },
+            "last_updated": "2025-01-16T20:26:00Z"
+          },
+          {
+            "sportsbook": "FanDuel",
+            "away_team": {
+              "spread": -2.5,
+              "odds": -110
+            },
+            "home_team": {
+              "spread": 2.5,
+              "odds": -110
+            },
+            "last_updated": "2025-01-16T20:29:00Z"
+          }
+        ],
+        "moneyline": [
+          {
+            "sportsbook": "DraftKings",
+            "away_team": {
+              "odds": -180
+            },
+            "home_team": {
+              "odds": 155
+            },
+            "last_updated": "2025-01-16T20:26:00Z"
+          },
+          {
+            "sportsbook": "FanDuel",
+            "away_team": {
+              "odds": -175
+            },
+            "home_team": {
+              "odds": 150
+            },
+            "last_updated": "2025-01-16T20:29:00Z"
+          }
+        ],
+        "total": [
+          {
+            "sportsbook": "DraftKings",
+            "total": 9.0,
+            "over": {
+              "odds": -115
+            },
+            "under": {
+              "odds": -105
+            },
+            "last_updated": "2025-01-16T20:26:00Z"
+          },
+          {
+            "sportsbook": "FanDuel",
+            "total": 9.0,
+            "over": {
+              "odds": -110
+            },
+            "under": {
+              "odds": -110
+            },
+            "last_updated": "2025-01-16T20:29:00Z"
+          }
+        ]
+      }
+    }
+  ]
+}

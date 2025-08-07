@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Betting Odds</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Controls -->
+        <div class="header-controls">
+            <div class="selectors">
+                <div class="selector-group">
+                    <select id="sport-selector" class="selector">
+                        <option value="mlb">MLB</option>
+                        <option value="nba" disabled>NBA</option>
+                        <option value="nfl" disabled>NFL</option>
+                        <option value="nhl" disabled>NHL</option>
+                    </select>
+                </div>
+                <div class="selector-group">
+                    <select id="bet-type-selector" class="selector">
+                        <option value="moneyline">Moneyline</option>
+                        <option value="spread">Spread</option>
+                        <option value="total">Total</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="date-navigation">
+                <button id="prev-date" class="nav-btn">‹</button>
+                <span id="current-date">Wed Aug 06</span>
+                <button id="next-date" class="nav-btn">›</button>
+            </div>
+        </div>
+
+        <!-- Table Headers -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="header-section">
+                    <div class="header-cell scheduled">SCHEDULED</div>
+                    <div class="header-cell open">OPEN</div>
+                    <div class="header-cell best-odds">BEST ODDS</div>
+                </div>
+                
+                <!-- Sportsbook Headers -->
+                <div class="sportsbook-headers" id="sportsbook-headers">
+                    <!-- Sportsbook logos will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Games Table -->
+            <div class="games-table" id="games-table">
+                <!-- Games will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Loading/Error States -->
+        <div id="loading" class="loading">Loading odds data...</div>
+        <div id="error" class="error" style="display: none;">
+            <p>Error loading odds data. Please try again.</p>
+            <button onclick="loadOddsData()">Retry</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
