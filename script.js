@@ -29,6 +29,7 @@ class OddsDisplay {
 
     init() {
         this.setupEventListeners();
+        this.setupScrollSync();
         this.updateDateDisplay();
         this.loadOddsData();
     }
@@ -57,6 +58,29 @@ class OddsDisplay {
             this.currentDate.setDate(this.currentDate.getDate() + 1);
             this.updateDateDisplay();
             this.loadOddsData();
+        });
+    }
+
+    setupScrollSync() {
+        // Synchronize horizontal scrolling between header and content
+        const tableHeader = document.querySelector('.table-header');
+        const gamesTable = document.getElementById('games-table');
+        
+        let isScrollingHeader = false;
+        let isScrollingContent = false;
+        
+        tableHeader.addEventListener('scroll', () => {
+            if (isScrollingContent) return;
+            isScrollingHeader = true;
+            gamesTable.scrollLeft = tableHeader.scrollLeft;
+            setTimeout(() => { isScrollingHeader = false; }, 10);
+        });
+        
+        gamesTable.addEventListener('scroll', () => {
+            if (isScrollingHeader) return;
+            isScrollingContent = true;
+            tableHeader.scrollLeft = gamesTable.scrollLeft;
+            setTimeout(() => { isScrollingContent = false; }, 10);
         });
     }
 

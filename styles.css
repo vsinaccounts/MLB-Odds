@@ -116,6 +116,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 10;
+    overflow-x: auto;
 }
 
 .header-section {
@@ -159,7 +160,10 @@ body {
     align-items: center;
     justify-content: center;
     padding: 8px 12px;
-    min-width: 80px;
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    flex-shrink: 0;
     border-right: 1px solid #e9ecef;
     background: #f8f9fa;
     transition: background-color 0.2s ease;
@@ -219,6 +223,7 @@ body {
 .games-table {
     max-height: 600px;
     overflow-y: auto;
+    overflow-x: auto;
 }
 
 /* Game Row */
@@ -356,7 +361,10 @@ body {
 }
 
 .odds-column {
-    min-width: 80px;
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    flex-shrink: 0;
     padding: 12px;
     border-right: 1px solid #f1f3f4;
     display: flex;
