@@ -193,15 +193,15 @@ class OddsDisplay {
     getSportsbookLogoUrl(sportsbook) {
         // Comprehensive sportsbook logo mapping - prioritizing allowed sportsbooks
         const logoMap = {
-            // Allowed sportsbooks
-            'ESPN Bet': 'https://logos-world.net/wp-content/uploads/2023/11/ESPN-BET-Logo.png',
-            'Fanatics': 'https://logos-world.net/wp-content/uploads/2023/08/Fanatics-Sportsbook-Logo.png',
-            'Caesars': 'https://logos-world.net/wp-content/uploads/2021/08/Caesars-Sportsbook-Logo.png',
-            'Bet365': 'https://logos-world.net/wp-content/uploads/2020/06/Bet365-Logo.png',
-            'DraftKings': 'https://logoeps.com/wp-content/uploads/2021/03/draftkings-vector-logo.png',
-            'Unabated': 'https://unabated.com/favicon.ico',
-            'FanDuel': 'https://logoeps.com/wp-content/uploads/2021/03/fanduel-vector-logo.png',
-            'BetMGM': 'https://logos-world.net/wp-content/uploads/2021/08/BetMGM-Logo.png',
+            // Allowed sportsbooks - using more reliable CDN sources
+            'ESPN Bet': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@v9/icons/espn.svg',
+            'Fanatics': 'https://seeklogo.com/images/F/fanatics-logo-2B2A928BDC-seeklogo.com.png',
+            'Caesars': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Caesars_Palace_logo.svg/200px-Caesars_Palace_logo.svg.png',
+            'Bet365': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Bet365_logo.svg/200px-Bet365_logo.svg.png',
+            'DraftKings': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/DraftKings_logo.svg/200px-DraftKings_logo.svg.png',
+            'Unabated': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjNGE5MGUyIi8+CiAgPHRleHQgeD0iMTYiIHk9IjIyIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VTwvdGV4dD4KICA8L3N2Zz4=',
+            'FanDuel': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/FanDuel_logo.svg/200px-FanDuel_logo.svg.png',
+            'BetMGM': 'https://seeklogo.com/images/B/betmgm-logo-160AE4D76B-seeklogo.com.png',
             
             // Other sportsbooks (for backward compatibility)
             'BetRivers': 'https://www.gamblingsites.com/app/uploads/2019/10/betrivers-logo-1.png',
