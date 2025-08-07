@@ -62,8 +62,8 @@ class OddsDisplay {
     }
 
     setupScrollSync() {
-        // No scroll sync needed - only the games table scrolls horizontally
-        // Headers and games data stay aligned as they're part of the same layout structure
+        // Headers and games are now part of the same scrollable container
+        // No sync needed as they scroll together naturally
     }
 
     updateDateDisplay() {
