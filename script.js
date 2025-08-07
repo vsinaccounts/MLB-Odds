@@ -14,7 +14,7 @@ class OddsDisplay {
         
         // Define allowed sportsbooks based on actual uploaded logo files
         this.allowedSportsbooks = [
-            'ESPN Bet',      // ESPN Bet.jpg
+            'ESPN BET',      // Data comes as "ESPN BET" from API
             'Fanatics',      // Fanatics.png
             'Caesars',       // Caesers.png (misspelled filename)
             'Bet365',        // Bet365.jpg
@@ -200,7 +200,7 @@ class OddsDisplay {
         // Fallback to external URLs if local logos aren't available
         const logoMap = {
             // Allowed sportsbooks - external fallbacks
-            'ESPN Bet': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@v9/icons/espn.svg',
+            'ESPN BET': 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@v9/icons/espn.svg',
             'Fanatics': 'https://seeklogo.com/images/F/fanatics-logo-2B2A928BDC-seeklogo.com.png',
             'Caesars': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Caesars_Palace_logo.svg/200px-Caesars_Palace_logo.svg.png',
             'Bet365': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Bet365_logo.svg/200px-Bet365_logo.svg.png',
@@ -247,7 +247,7 @@ class OddsDisplay {
     getLocalLogoUrl(sportsbook) {
         // Map of sportsbook names to their exact uploaded file names
         const fileMap = {
-            'ESPN Bet': 'ESPN%20Bet.jpg',        // URL encoded space
+            'ESPN BET': 'ESPNBet.jpg',           // Renamed file without space
             'Fanatics': 'Fanatics.png', 
             'Caesars': 'Caesers.png',            // Note: misspelled as "Caesers" in actual file
             'Bet365': 'Bet365.jpg',
@@ -259,7 +259,7 @@ class OddsDisplay {
         
         // Check if we have a specific file mapping for this sportsbook
         if (fileMap[sportsbook]) {
-            return `http://localhost:5000/logos/${fileMap[sportsbook]}`;
+            return `http://localhost:5000/logos/${fileMap[sportsbook]}?v=${Date.now()}`;
         }
         
         // Return null if no mapping found (will trigger fallback)
@@ -271,7 +271,7 @@ class OddsDisplay {
         const initial = sportsbook.charAt(0).toUpperCase();
         const colors = {
             // Allowed sportsbooks colors
-            'ESPN Bet': '#d50000',
+            'ESPN BET': '#d50000',
             'Fanatics': '#0066cc', 
             'Caesars': '#dc2626',
             'Bet365': '#ffb400',
@@ -382,7 +382,7 @@ class OddsDisplay {
         // Handle common sportsbook name formatting
         const nameMap = {
             // Allowed sportsbooks
-            'ESPN Bet': 'ESPN BET',
+            'ESPN BET': 'ESPN BET',
             'Fanatics': 'FANATICS',
             'Caesars': 'CAESARS',
             'Bet365': 'BET365',
