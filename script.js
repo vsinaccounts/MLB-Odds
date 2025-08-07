@@ -247,9 +247,9 @@ class OddsDisplay {
     getLocalLogoUrl(sportsbook) {
         // Map of sportsbook names to their actual uploaded file names
         const fileMap = {
-            'ESPN Bet': 'ESPN Bet.jpg',
+            'ESPN Bet': 'ESPN%20Bet.jpg',
             'Fanatics': 'Fanatics.png', 
-            'Caesars': 'Caesers.png', // Note: misspelled in uploaded file
+            'Caesars': 'Caesers.png', // Note: actual filename is misspelled
             'Bet365': 'Bet365.jpg',
             'DraftKings': 'Draftkings.jpeg',
             'Unabated': 'Unabated.jpg',
@@ -259,7 +259,7 @@ class OddsDisplay {
         
         // Check if we have a specific file mapping for this sportsbook
         if (fileMap[sportsbook]) {
-            return `http://localhost:5000/logos/${encodeURIComponent(fileMap[sportsbook])}`;
+            return `http://localhost:5000/logos/${fileMap[sportsbook]}`;
         }
         
         // Return null if no mapping found (will trigger fallback)
@@ -325,16 +325,19 @@ class OddsDisplay {
                 
                 if (currentTier === 0 && localLogoUrl) {
                     // Tier 1: Try local server logo first
+                    console.log(`Loading local logo for ${sportsbook}: ${localLogoUrl}`);
                     img.className = 'sportsbook-logo loading';
                     img.src = localLogoUrl;
                     currentTier++;
                 } else if (currentTier === 1 && externalLogoUrl) {
                     // Tier 2: Try external logo URL
+                    console.log(`Loading external logo for ${sportsbook}: ${externalLogoUrl}`);
                     img.className = 'sportsbook-logo loading';
                     img.src = externalLogoUrl;
                     currentTier++;
                 } else {
                     // Tier 3: Use generated fallback
+                    console.log(`Using fallback logo for ${sportsbook}`);
                     img.classList.remove('loading');
                     img.classList.add('fallback');
                     img.src = fallbackLogo;
@@ -346,13 +349,16 @@ class OddsDisplay {
             };
             
             img.onerror = () => {
+                console.log(`Logo failed to load for ${sportsbook} at tier ${currentTier}, src: ${img.src}`);
                 if (currentTier === 0 && !localLogoUrl && externalLogoUrl) {
                     // Skip to external if no local logo exists
                     currentTier = 1;
                     tryNextLogo();
                 } else if (currentTier < 2) {
+                    currentTier++;
                     tryNextLogo();
                 } else {
+                    console.log(`Using final fallback for ${sportsbook}`);
                     img.classList.remove('loading');
                     img.classList.add('fallback');
                     img.src = fallbackLogo;
